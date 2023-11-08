@@ -55,9 +55,7 @@ function App() {
                 key={i}
                 className="bg-text w-full h-full border-background"
                 style={{ borderWidth: `${size > 8 ? '1' : '2'}px` }}
-              >
-                {i}
-              </div>
+              ></div>
             ))}
           </div>
         </div>
