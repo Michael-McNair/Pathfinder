@@ -1,11 +1,32 @@
 import { useState, useEffect, useRef } from 'react';
+import AStar from './algorithms/AStar.tsx';
 
 function App() {
   const [size, setSize] = useState(10);
   const [minScreen, setMinScreen] = useState(0);
+  const [map, setMap] = useState([
+    ['#', '#', '#', 'w', '#', '#', '#', '#', '#', '#'],
+    ['#', '#', '#', '#', '#', 'w', '#', '#', '#', '#'],
+    ['#', 'w', 'w', 'w', 'w', 'w', 'w', '#', 'w', 'w'],
+    ['#', '#', '#', 'w', 'b', '#', '#', '#', 'w', 'a'],
+    ['w', 'w', '#', 'w', 'w', 'w', 'w', 'w', 'w', '#'],
+    ['#', '#', '#', '#', '#', '#', 'w', '#', 'w', '#'],
+    ['w', 'w', 'w', '#', 'w', '#', 'w', '#', 'w', '#'],
+    ['#', '#', '#', '#', 'w', '#', '#', '#', 'w', '#'],
+    ['#', '#', '#', '#', 'w', '#', 'w', '#', 'w', '#'],
+    ['#', '#', '#', '#', '#', '#', 'w', '#', '#', '#'],
+  ]);
   const ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // a* stuff
+    const aStarInterval = setInterval(() => {
+      setMap(aStarTick());
+    }, 200);
+
+    const aStarTick = AStar(map, aStarInterval);
+
+    // ui
     const element = ref?.current;
 
     if (!element) return;
@@ -50,13 +71,34 @@ function App() {
               }px) / repeat(${size}, ${minScreen / size}px)`,
             }}
           >
-            {Array.from({ length: size * size }, (_, i) => (
-              <div
-                key={i}
-                className="bg-text w-full h-full border-background"
-                style={{ borderWidth: `${size > 8 ? '1' : '2'}px` }}
-              ></div>
-            ))}
+            {map.map((row: any, y) => {
+              return (
+                <>
+                  {row.map((box: any, x: number) => {
+                    const colorVariants: any = {
+                      '#': 'bg-secondary',
+                      a: 'bg-accent',
+                      b: 'bg-primary',
+                      w: 'bg-background',
+                      o: 'bg-green-700',
+                      c: 'bg-red-700',
+                      p: 'bg-blue-700',
+                    };
+
+                    return (
+                      <div
+                        key={x + y}
+                        className={`${colorVariants[box]} bg-green rounded w-full h-full border-background flex items-center justify-center text-text text-4xl`}
+                        style={{ borderWidth: `${size > 8 ? '1' : '2'}px` }}
+                      >
+                        {box === 'a' && 'A'}
+                        {box === 'b' && 'B'}
+                      </div>
+                    );
+                  })}
+                </>
+              );
+            })}
           </div>
         </div>
       </div>
