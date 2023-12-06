@@ -1,5 +1,5 @@
 import Box from '../sharedTypes';
-import { calculateGCost, calculateHCost } from '../utils';
+import { diagonal, calculateHCost } from '../utils';
 
 export default function AStar(map: string[][], aStarInterval: any) {
   const a: any = {};
@@ -22,15 +22,16 @@ export default function AStar(map: string[][], aStarInterval: any) {
   let closed: Box[] = [];
   let path: Box[] = [];
 
-  const gCost = calculateGCost(a.x, a.y, a);
+  const gCost = 0;
   const hCost = calculateHCost(a.x, a.y, b);
-  const fCost = gCost + hCost;
+  const fCost = hCost + gCost;
   open.push({
     x: a.x,
     y: a.y,
     gCost: gCost,
     hCost: hCost,
     fCost: fCost,
+    parent: null,
   });
 
   return () => {
@@ -71,8 +72,27 @@ export default function AStar(map: string[][], aStarInterval: any) {
             (closedBox: Box) => closedBox.x === box.x && closedBox.y === box.y
           )
         ) {
-          const gCost = calculateGCost(box.x, box.y, a);
+          let currentGCost;
+
+          if (current.parent) {
+            if (diagonal(current.parent.x, current.parent.y, current)) {
+              currentGCost = current.parent.gCost + 14;
+            } else {
+              currentGCost = current.parent.gCost + 10;
+            }
+          } else {
+            currentGCost = 0;
+          }
+
+          let gCost;
+          if (diagonal(box.x, box.y, current)) {
+            gCost = currentGCost + 14;
+          } else {
+            gCost = currentGCost + 10;
+          }
+
           const hCost = calculateHCost(box.x, box.y, b);
+
           const fCost = gCost + hCost;
           const existingOpenBox = open.find(
             (openBox: any) => openBox.x === box.x && openBox.y === box.y
@@ -94,11 +114,11 @@ export default function AStar(map: string[][], aStarInterval: any) {
               fCost: fCost,
               parent: current,
             });
-            console.log(current);
           }
         }
       }
     });
+
     const visualizationArray = map.map((row: any, y: number) => {
       return row.map((box: any, x: number) => {
         if (box === 'a' || box === 'b') return box;
@@ -119,6 +139,7 @@ export default function AStar(map: string[][], aStarInterval: any) {
         return box;
       });
     });
+
     return visualizationArray;
   };
 }

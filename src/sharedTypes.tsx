@@ -4,5 +4,5 @@ export default interface Box {
   gCost: number;
   hCost: number;
   fCost: number;
-  parent?: Box;
+  parent?: any;
 }
