@@ -1,7 +1,11 @@
 import Box from '../sharedTypes';
 import { diagonal, calculateHCost } from '../utils';
 
-export default function AStar(map: string[][], aStarInterval: any) {
+export default function AStar(
+  map: string[][],
+  aStarInterval: any,
+  setRunning: any
+) {
   const a: any = {};
   const b: any = {};
 
@@ -47,6 +51,7 @@ export default function AStar(map: string[][], aStarInterval: any) {
 
     if (current.x === b.x && current.y === b.y) {
       clearInterval(aStarInterval);
+      setRunning(false);
 
       let temp = current;
       while (temp) {
