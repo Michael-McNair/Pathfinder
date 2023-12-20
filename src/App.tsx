@@ -9,6 +9,7 @@ function App() {
   const [size, setSize] = useState(11);
   const [speed, setSpeed] = useState(100);
   const [minScreen, setMinScreen] = useState(0);
+  const [fontSize, setFontSize] = useState(minScreen / size - 3);
   const [map, setMap] = useState([
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
@@ -50,10 +51,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(map);
-  }, [map]);
-
-  useEffect(() => {
     const element = ref?.current;
 
     if (!element) return;
@@ -80,7 +77,6 @@ function App() {
       updatedMap[y] = [...prevMap[y]];
 
       // Check if the current brush is 'a' or 'b' and update the map accordingly
-      console.log(e.button, mouseButton);
       if (e.button === 0 && mouseButton === 0) {
         if (
           (brush === 'a' && !updatedMap.flat().includes('a')) ||
@@ -114,6 +110,10 @@ function App() {
   const handleMouseUp = () => {
     setIsMouseDown(false);
   };
+
+  useEffect(() => {
+    setFontSize(minScreen / size - 3);
+  }, [minScreen, size]);
 
   return (
     <div className="w-screen h-screen flex flex-col bg-background overflow-hidden">
@@ -205,7 +205,11 @@ function App() {
           <div className="py-1 h-full">
             <button
               className={`group rounded-md h-full text-text text-lg box-border relative z-20 bg-primary overflow-hidden`}
-              onClick={generateMaze}
+              onClick={() => {
+                if (!running) {
+                  generateMaze();
+                }
+              }}
             >
               <div className="w-0 h-full absolute top-0 bg-secondary group-hover:w-full duration-300 z-10"></div>
               <h3 className="relative text-xl text-text px-2 z-30">
@@ -217,7 +221,11 @@ function App() {
           <div className="py-1 h-full">
             <button
               className={`group rounded-md h-full text-text text-lg box-border aspect-square relative z-20 bg-primary overflow-hidden`}
-              onClick={run}
+              onClick={() => {
+                if (!running) {
+                  run();
+                }
+              }}
             >
               <div className="w-0 h-full absolute top-0 bg-secondary group-hover:w-full duration-300 z-10"></div>
               <img
@@ -276,7 +284,7 @@ function App() {
                         draggable={false}
                         onDragStart={(e) => e.preventDefault()}
                       >
-                        <h3 className={``}>
+                        <h3 style={{ fontSize: fontSize + 'px' }}>
                           {box === 'a' && 'A'}
                           {box === 'b' && 'B'}
                         </h3>
