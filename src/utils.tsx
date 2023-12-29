@@ -13,6 +13,29 @@ function diagonal(x: number, y: number, a: { x: number; y: number }) {
   }
 }
 
+function direction(current: any, parent: any) {
+  // y x
+  // 0 0, 0 1, 0 2
+  // 1 0, 1 1, 1 2
+  // 2 0, 2 1, 2 2
+  let result = [];
+
+  if (current.y === parent.y + 1) {
+    result.push('up');
+  }
+  if (current.y === parent.y - 1) {
+    result.push('down');
+  }
+  if (current.x === parent.x + 1) {
+    result.push('left');
+  }
+  if (current.x === parent.x - 1) {
+    result.push('right');
+  }
+
+  return result.join('-');
+}
+
 const calculateHCost = (x: number, y: number, b: { x: number; y: number }) => {
   const vertical = Math.abs(b.y - y);
 
@@ -23,4 +46,4 @@ const calculateHCost = (x: number, y: number, b: { x: number; y: number }) => {
   );
 };
 
-export { diagonal, calculateHCost };
+export { diagonal, direction, calculateHCost };

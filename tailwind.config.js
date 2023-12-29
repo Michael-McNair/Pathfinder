@@ -9,6 +9,9 @@ module.exports = {
         secondary: '#0D3B34',
         accent: '#3FD5C3',
       },
+      rotate: {
+        135: '135deg',
+      },
     },
     fontFamily: {
       title: ['Rajdhani', 'sans-serif'],

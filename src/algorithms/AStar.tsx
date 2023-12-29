@@ -1,13 +1,27 @@
 import Box from '../sharedTypes';
-import { diagonal, calculateHCost } from '../utils';
+import { diagonal, direction, calculateHCost } from '../utils';
 
-export default function AStar(
-  map: string[][],
-  aStarInterval: any,
-  setRunning: any
+function AStar(
+  map: {
+    box: string;
+    gCost: number;
+    hCost: number;
+    fCost: number;
+    direction: string;
+  }[][],
+  finish: any
 ) {
-  let newMap = map.map((row) =>
-    row.map((box) => (box === 'c' || box === 'o' || box === 'p' ? '#' : box))
+  let newMap: any = map.map((row) =>
+    row.map((box) => {
+      return {
+        box:
+          box.box === 'c' || box.box === 'o' || box.box === 'p' ? '#' : box.box,
+        gCost: null,
+        hCost: null,
+        fCost: null,
+        direction: null,
+      };
+    })
   );
 
   const a: any = {};
@@ -15,11 +29,11 @@ export default function AStar(
 
   for (let i = 0; i < map.length; i++) {
     for (let j = 0; j < map.length; j++) {
-      if (map[i][j] === 'a') {
+      if (map[i][j].box === 'a') {
         a.x = j;
         a.y = i;
       }
-      if (map[i][j] === 'b') {
+      if (map[i][j].box === 'b') {
         b.x = j;
         b.y = i;
       }
@@ -55,8 +69,7 @@ export default function AStar(
       closed.push(current);
 
       if (current.x === b.x && current.y === b.y) {
-        clearInterval(aStarInterval);
-        setRunning(false);
+        finish();
 
         let temp = current;
         while (temp) {
@@ -76,7 +89,7 @@ export default function AStar(
       }
 
       neighbour.forEach((box: any) => {
-        if (map[box.y] && map[box.y][box.x] && map[box.y][box.x] !== 'w') {
+        if (map[box.y] && map[box.y][box.x] && map[box.y][box.x].box !== 'w') {
           if (
             !closed.some(
               (closedBox: Box) => closedBox.x === box.x && closedBox.y === box.y
@@ -114,6 +127,12 @@ export default function AStar(
                 existingOpenBox.hCost = hCost;
                 existingOpenBox.fCost = fCost;
                 existingOpenBox.parent = current;
+
+                newMap[existingOpenBox.y][existingOpenBox.x].gCost = gCost;
+                newMap[existingOpenBox.y][existingOpenBox.x].hCost = hCost;
+                newMap[existingOpenBox.y][existingOpenBox.x].fCost = fCost;
+                newMap[existingOpenBox.y][existingOpenBox.x].direction =
+                  direction(existingOpenBox, existingOpenBox.parent);
               }
             } else {
               open.push({
@@ -124,37 +143,77 @@ export default function AStar(
                 fCost: fCost,
                 parent: current,
               });
+              newMap[box.y][box.x].gCost = gCost;
+              newMap[box.y][box.x].hCost = hCost;
+              newMap[box.y][box.x].fCost = fCost;
+              newMap[box.y][box.x].direction = direction(box, current);
             }
           }
         }
       });
     }
+
     newMap = newMap.map((row: any, y: number) => {
       return row.map((box: any, x: number) => {
-        if (box === 'a' || box === 'b') return box;
-        if (path.some((pathBox: any) => pathBox.x === x && pathBox.y === y)) {
-          return 'p';
-        }
+        let type = box.box;
+        if (box.box === 'a' || box.box === 'b') return box;
         if (open.some((openBox: any) => openBox.x === x && openBox.y === y)) {
-          return 'o';
+          type = 'o';
         }
         if (
           closed.some(
             (closedBox: any) => closedBox.x === x && closedBox.y === y
           )
         ) {
-          return 'c';
+          type = 'c';
+        }
+        if (path.some((pathBox: any) => pathBox.x === x && pathBox.y === y)) {
+          type = 'p';
         }
 
-        return box;
+        return { ...box, box: type };
       });
     });
 
     if (!current) {
-      clearInterval(aStarInterval);
-      setRunning(false);
+      finish();
     }
 
     return newMap;
+  };
+}
+
+export function createAStar(
+  map: {
+    box: string;
+    gCost: number;
+    hCost: number;
+    fCost: number;
+    direction: string;
+  }[][],
+  finish: any,
+  updateMap: any
+) {
+  let aStarState: any;
+  let aStarInterval: any;
+
+  const initializeAStar = () => {
+    aStarState = AStar(map, finish);
+  };
+
+  const tick = () => {
+    if (aStarState) {
+      updateMap(aStarState());
+    }
+  };
+
+  const pauseAStar = () => {
+    clearInterval(aStarInterval);
+  };
+
+  return {
+    initializeAStar,
+    tick,
+    pauseAStar,
   };
 }
